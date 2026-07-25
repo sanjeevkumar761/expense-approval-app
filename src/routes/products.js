@@ -70,46 +70,48 @@ function pageShell({ title, activeNav, bodyHtml }) {
 </html>`;
 }
 
-function productCardHtml(p) {
+function productCardHtml(p, { badgeLabel } = {}) {
   const price = formatMoney(p.price, p.currency);
   const imageUrl = p.imageUrl ? String(p.imageUrl) : '';
   const description = typeof p.description === 'string' ? p.description : '';
   const shortDesc = description.length > 120 ? `${description.slice(0, 117)}...` : description;
 
+  // Optional overlay badge for trends page UX.
+  const badgeHtml = badgeLabel
+    ? `<div class="product-card-badge" aria-label="Trend badge">${escapeHtml(badgeLabel)}</div>`
+    : '';
+
   return `
     <a class="product-card-link" href="/products/${encodeURIComponent(p.id)}" aria-label="View ${escapeHtml(
     p.name
   )}">
-        <article class="product-card">
-          <div class="product-card-media">
-            ${imageUrl
-              ? `<img class="product-card-img" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(
-                  p.name
-                )} product image" loading="lazy" />`
-              : `<div class="product-card-img product-card-img--placeholder" aria-hidden="true"></div>`}
+      <article class="product-card">
+        <div class="product-card-media">
+          ${badgeHtml}
+          ${imageUrl
+            ? `<img class="product-card-img" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(
+                p.name
+              )} product image" loading="lazy" />`
+            : `<div class="product-card-img product-card-img--placeholder" aria-hidden="true"></div>`}
+        </div>
+        <div class="product-card-body">
+          <div>
+            <h2 class="product-card-title">${escapeHtml(p.name)}</h2>
+            <p class="product-card-desc">${escapeHtml(shortDesc)}</p>
           </div>
-          <div class="product-card-body">
-            <div>
-              <h2 class="product-card-title">${escapeHtml(p.name)}</h2>
-              <p class="product-card-desc">${escapeHtml(shortDesc)}</p>
-            </div>
-            <div class="product-card-footer">
-              <div class="product-card-price" aria-label="Price">${escapeHtml(price)}</div>
-              <div class="product-card-cta">View details</div>
-            </div>
+          <div class="product-card-footer">
+            <div class="product-card-price" aria-label="Price">${escapeHtml(price)}</div>
+            <div class="product-card-cta">View details</div>
           </div>
-        </article>
-      </a>`;
+        </div>
+      </article>
+    </a>`;
 }
 
 router.get('/', (req, res) => {
   const products = productsStore.list();
 
-  const cardsHtml = products
-    .map((p) => {
-      return productCardHtml(p);
-    })
-    .join('');
+  const cardsHtml = products.map((p) => productCardHtml(p)).join('');
 
   const html = pageShell({
     title: 'Products',
@@ -161,17 +163,7 @@ router.get('/trends', (req, res) => {
   const cardsHtml = top
     .map((p, idx) => {
       const tag = idx === 0 ? 'Top pick' : idx === 1 ? 'Rising now' : 'Hot right now';
-      const tagHtml = `<div style="margin:0 0 10px;">
-        <span class="badge" style="background: rgba(91, 140, 255, 0.10); border-color: rgba(91, 140, 255, 0.25); color: rgba(231,238,252,0.92);">${escapeHtml(
-          tag
-        )}</span>
-      </div>`;
-
-      // Wrap card to keep existing product-grid styles.
-      return `<div style="display:flex; flex-direction:column;">
-        ${tagHtml}
-        ${productCardHtml(p)}
-      </div>`;
+      return productCardHtml(p, { badgeLabel: tag });
     })
     .join('');
 

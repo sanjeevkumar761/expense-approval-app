@@ -11,10 +11,18 @@ describe('Product trends page', () => {
     expect(res.headers['content-type']).toMatch(/html/);
 
     expect(res.text).toContain('Latest Product Trends');
+
     // Deterministic seed ordering by price desc: Headphones (129) should appear.
     expect(res.text).toContain('Noise-Cancelling Headphones');
+
+    // Ensure cards render as styled product cards inside the grid.
     expect(res.text).toContain('class="product-grid"');
     expect(res.text).toContain('class="product-card"');
+    expect(res.text).toContain('class="product-card-link"');
+
+    // New UX: trends cards include a visible badge overlay.
+    expect(res.text).toContain('class="product-card-badge"');
+    expect(res.text).toContain('Top pick');
   });
 
   test('GET /products/trends handles empty catalog with a clear empty state', async () => {
