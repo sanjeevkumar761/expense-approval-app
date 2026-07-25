@@ -14,8 +14,14 @@ Full-stack expense approval app in one repo.
   - Form to create expenses
   - Approve/Reject/Paid buttons
   - **Expenses chart** (bar chart by incurred date for the last 7 days)
+  - **Navigation entry point to products** (link to `/products` catalog)
+- **Product catalog pages**
+  - `GET /products` — HTML list of products
+  - `GET /products/:id` — HTML product detail
 - **Tests**: Jest + Supertest
   - API test covering list/create/status update + summary edge cases
+  - Product catalog HTML tests
+  - UI smoke test ensuring `/` links to the product catalog
 
 ## Getting started
 
@@ -95,3 +101,4 @@ npm test
 - Chart updates when adding an expense, updating status, or refreshing.
 - Adds a new API endpoint to support the chart: `GET /api/expenses/summary`.
 - Improves demo measurability via automated tests for the summary endpoint and its edge cases.
+- Adds **products UI navigation** on the main page (a “Browse products” link to the existing `/products` catalog pages). 
