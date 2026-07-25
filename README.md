@@ -103,3 +103,5 @@ npm test
 - Improves demo measurability via automated tests for the summary endpoint and its edge cases.
 - Adds **products UI navigation** on the main page (a “Browse products” link to the existing `/products` catalog pages). 
 - Improves the **Products catalog UI**: replaces raw table hyperlinks with styled product cards and enhances product detail presentation (including a graceful placeholder when a product has no image).
+- **Redesigns the Products catalog experience** to look more modern and professional, including improved empty-catalog and 404 states.
+- Product images in the demo catalog use stable Picsum placeholders and include accessible alt text.
