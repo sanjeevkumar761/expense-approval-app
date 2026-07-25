@@ -64,6 +64,17 @@ describe('Product catalog', () => {
     expect(res.text).toContain('class="product-detail-img product-detail-img--placeholder"');
   });
 
+  test('GET /products returns an empty-catalog empty state when there are no products', async () => {
+    productsStore._products = [];
+
+    const res = await request(app).get('/products');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toMatch(/html/);
+
+    expect(res.text).toContain('Available products');
+    expect(res.text).toContain('No products are currently available');
+  });
+
   test('GET /products/:id for an unknown id returns 404 HTML page', async () => {
     productsStore.seed();
 
