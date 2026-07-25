@@ -33,6 +33,11 @@ function pageShell({ title, activeNav, bodyHtml }) {
       ? ` <a class="action-btn secondary-link" href="/products" aria-current="page">Products</a>`
       : ` <a class="action-btn secondary-link" href="/products">Products</a>`;
 
+  const navTrends =
+    activeNav === 'trends'
+      ? ` <a class="action-btn secondary-link" href="/products/trends" aria-current="page">Trends</a>`
+      : ` <a class="action-btn secondary-link" href="/products/trends">Trends</a>`;
+
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -51,6 +56,7 @@ function pageShell({ title, activeNav, bodyHtml }) {
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
             ${navProducts}
+            ${navTrends}
             <a class="action-btn secondary-link" href="/" aria-label="Back to expense approval">Back to app</a>
           </div>
         </div>
@@ -64,40 +70,44 @@ function pageShell({ title, activeNav, bodyHtml }) {
 </html>`;
 }
 
+function productCardHtml(p) {
+  const price = formatMoney(p.price, p.currency);
+  const imageUrl = p.imageUrl ? String(p.imageUrl) : '';
+  const description = typeof p.description === 'string' ? p.description : '';
+  const shortDesc = description.length > 120 ? `${description.slice(0, 117)}...` : description;
+
+  return `
+    <a class="product-card-link" href="/products/${encodeURIComponent(p.id)}" aria-label="View ${escapeHtml(
+    p.name
+  )}">
+        <article class="product-card">
+          <div class="product-card-media">
+            ${imageUrl
+              ? `<img class="product-card-img" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(
+                  p.name
+                )} product image" loading="lazy" />`
+              : `<div class="product-card-img product-card-img--placeholder" aria-hidden="true"></div>`}
+          </div>
+          <div class="product-card-body">
+            <div>
+              <h2 class="product-card-title">${escapeHtml(p.name)}</h2>
+              <p class="product-card-desc">${escapeHtml(shortDesc)}</p>
+            </div>
+            <div class="product-card-footer">
+              <div class="product-card-price" aria-label="Price">${escapeHtml(price)}</div>
+              <div class="product-card-cta">View details</div>
+            </div>
+          </div>
+        </article>
+      </a>`;
+}
+
 router.get('/', (req, res) => {
   const products = productsStore.list();
 
   const cardsHtml = products
     .map((p) => {
-      const price = formatMoney(p.price, p.currency);
-      const imageUrl = p.imageUrl ? String(p.imageUrl) : '';
-      const description = typeof p.description === 'string' ? p.description : '';
-      const shortDesc = description.length > 120 ? `${description.slice(0, 117)}...` : description;
-
-      return `
-        <a class="product-card-link" href="/products/${encodeURIComponent(p.id)}" aria-label="View ${escapeHtml(
-        p.name
-      )}">
-          <article class="product-card">
-            <div class="product-card-media">
-              ${imageUrl
-                ? `<img class="product-card-img" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(
-                    p.name
-                  )} product image" loading="lazy" />`
-                : `<div class="product-card-img product-card-img--placeholder" aria-hidden="true"></div>`}
-            </div>
-            <div class="product-card-body">
-              <div>
-                <h2 class="product-card-title">${escapeHtml(p.name)}</h2>
-                <p class="product-card-desc">${escapeHtml(shortDesc)}</p>
-              </div>
-              <div class="product-card-footer">
-                <div class="product-card-price" aria-label="Price">${escapeHtml(price)}</div>
-                <div class="product-card-cta">View details</div>
-              </div>
-            </div>
-          </article>
-        </a>`;
+      return productCardHtml(p);
     })
     .join('');
 
@@ -122,6 +132,70 @@ router.get('/', (req, res) => {
           `
           : `
             <div class="product-grid" role="list" aria-label="Products list">
+              ${cardsHtml}
+            </div>
+          `}
+      </section>
+    `
+  });
+
+  return res.status(200).type('html').send(html);
+});
+
+router.get('/trends', (req, res) => {
+  const products = productsStore.list();
+
+  // Simple demo “trends” logic: deterministic ordering by price, plus category-ish tags.
+  // (Measurable + edge-case safe: always returns an array, handles empty list.)
+  const byPriceDesc = [...products].sort((a, b) => {
+    const ap = Number(a?.price);
+    const bp = Number(b?.price);
+    if (!Number.isFinite(ap) && !Number.isFinite(bp)) return 0;
+    if (!Number.isFinite(ap)) return 1;
+    if (!Number.isFinite(bp)) return -1;
+    return bp - ap;
+  });
+
+  const top = byPriceDesc.slice(0, 6);
+
+  const cardsHtml = top
+    .map((p, idx) => {
+      const tag = idx === 0 ? 'Top pick' : idx === 1 ? 'Rising now' : 'Hot right now';
+      const tagHtml = `<div style="margin:0 0 10px;">
+        <span class="badge" style="background: rgba(91, 140, 255, 0.10); border-color: rgba(91, 140, 255, 0.25); color: rgba(231,238,252,0.92);">${escapeHtml(
+          tag
+        )}</span>
+      </div>`;
+
+      // Wrap card to keep existing product-grid styles.
+      return `<div style="display:flex; flex-direction:column;">
+        ${tagHtml}
+        ${productCardHtml(p)}
+      </div>`;
+    })
+    .join('');
+
+  const html = pageShell({
+    title: 'Latest Product Trends',
+    activeNav: 'trends',
+    bodyHtml: `
+      <section class="card" aria-label="Latest product trends">
+        <div class="list-header" style="margin-bottom:8px;">
+          <div>
+            <h2 style="margin:0; font-size:18px;">Latest Product Trends</h2>
+            <p class="muted" style="margin:6px 0 0; font-size:13px;">A curated snapshot of what’s trending in this demo catalog.</p>
+          </div>
+        </div>
+
+        ${products.length === 0
+          ? `
+            <div style="padding:14px 2px;">
+              <p style="margin:0; color: var(--muted);">No trends to show yet.</p>
+              <p style="margin:10px 0 0; color: var(--muted); font-size:13px;">Add products in the seed data to populate trends.</p>
+            </div>
+          `
+          : `
+            <div class="product-grid" role="list" aria-label="Trending products">
               ${cardsHtml}
             </div>
           `}
