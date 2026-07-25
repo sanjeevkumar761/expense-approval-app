@@ -52,16 +52,35 @@ function pageShell({ title, bodyHtml }) {
 router.get('/', (req, res) => {
   const products = productsStore.list();
 
-  const itemsHtml = products
+  const cardsHtml = products
     .map((p) => {
       const price = formatMoney(p.price, p.currency);
+      const imageUrl = p.imageUrl ? String(p.imageUrl) : '';
+      const description = typeof p.description === 'string' ? p.description : '';
+      const shortDesc = description.length > 120 ? `${description.slice(0, 117)}...` : description;
+
       return `
-        <tr>
-          <td>
-            <a href="/products/${encodeURIComponent(p.id)}">${escapeHtml(p.name)}</a>
-          </td>
-          <td>${escapeHtml(price)}</td>
-        </tr>`;
+        <a class="product-card-link" href="/products/${encodeURIComponent(p.id)}" aria-label="View ${escapeHtml(
+        p.name
+      )}">
+          <article class="product-card">
+            <div class="product-card-media">
+              ${
+                imageUrl
+                  ? `<img class="product-card-img" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(p.name)}" />`
+                  : `<div class="product-card-img product-card-img--placeholder" aria-hidden="true"></div>`
+              }
+            </div>
+            <div class="product-card-body">
+              <h2 class="product-card-title">${escapeHtml(p.name)}</h2>
+              <p class="product-card-desc">${escapeHtml(shortDesc)}</p>
+              <div class="product-card-footer">
+                <div class="product-card-price">${escapeHtml(price)}</div>
+                <div class="product-card-cta">View details</div>
+              </div>
+            </div>
+          </article>
+        </a>`;
     })
     .join('');
 
@@ -69,18 +88,16 @@ router.get('/', (req, res) => {
     title: 'Products',
     bodyHtml: `
       <section class="card">
-        <h2 style="margin-top:0;">Available products</h2>
-        <table class="table" aria-label="Products list">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${itemsHtml}
-          </tbody>
-        </table>
+        <div class="list-header">
+          <div>
+            <h2 style="margin:0; font-size:18px;">Available products</h2>
+            <p class="muted" style="margin:6px 0 0; font-size:13px;">Click a product card to view details.</p>
+          </div>
+        </div>
+
+        <div class="product-grid" role="list" aria-label="Products list">
+          ${cardsHtml}
+        </div>
       </section>
     `
   });
@@ -93,40 +110,54 @@ router.get('/:id', (req, res) => {
   const product = productsStore.findById(id);
 
   if (!product) {
-    return res.status(404).type('html').send(pageShell({
-      title: 'Product not found',
-      bodyHtml: `
-        <section class="card">
-          <h2 style="margin-top:0;">404 - Not Found</h2>
-          <p class="muted">No product exists for id <code>${escapeHtml(id)}</code>.</p>
-          <p><a href="/products">Back to products</a></p>
-        </section>
-      `
-    }));
+    return res.status(404).type('html').send(
+      pageShell({
+        title: 'Product not found',
+        bodyHtml: `
+          <section class="card">
+            <h2 style="margin-top:0;">404 - Not Found</h2>
+            <p class="muted">No product exists for id <code>${escapeHtml(id)}</code>.</p>
+            <p><a class="action-btn secondary-link" href="/products">&larr; Back to products</a></p>
+          </section>
+        `
+      })
+    );
   }
 
   const price = formatMoney(product.price, product.currency);
+  const imageUrl = product.imageUrl ? String(product.imageUrl) : '';
 
   const html = pageShell({
     title: product.name,
     bodyHtml: `
       <section class="card">
-        <h2 style="margin-top:0;">${escapeHtml(product.name)}</h2>
-        <p class="muted" style="margin-top:-4px; margin-bottom:12px;">Product ID: ${escapeHtml(product.id)}</p>
-
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items:flex-start;">
-          <div>
-            <p style="font-size:18px; font-weight:800; margin:0 0 10px;">${escapeHtml(price)}</p>
-            <p>${escapeHtml(product.description)}</p>
-            <p><a href="/products">&larr; Back to products</a></p>
+        <div class="product-detail">
+          <div class="product-detail-media">
+            ${
+              imageUrl
+                ? `<img
+                    src="${escapeHtml(imageUrl)}"
+                    alt="${escapeHtml(product.name)}"
+                    class="product-detail-img"
+                  />`
+                : `<div class="product-detail-img product-detail-img--placeholder" aria-hidden="true"></div>`
+            }
           </div>
 
-          <div>
-            <img
-              src="${escapeHtml(product.imageUrl)}"
-              alt="${escapeHtml(product.name)}"
-              style="width:100%; max-height: 320px; object-fit: cover; border-radius: 12px; border: 1px solid var(--border);"
-            />
+          <div class="product-detail-info">
+            <div class="product-detail-top">
+              <h2 style="margin:0 0 6px;">${escapeHtml(product.name)}</h2>
+              <p class="muted" style="margin:0 0 14px; font-size:13px;">Product ID: <code>${escapeHtml(
+                product.id
+              )}</code></p>
+            </div>
+
+            <div class="product-detail-price">${escapeHtml(price)}</div>
+            <p class="product-detail-desc">${escapeHtml(product.description)}</p>
+
+            <div class="product-detail-actions">
+              <a class="action-btn secondary-link" href="/products">&larr; Back to products</a>
+            </div>
           </div>
         </div>
       </section>
