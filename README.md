@@ -89,7 +89,8 @@ npm test
 ```
 
 ## User-visible changes
-- Adds an **expenses bar chart** to the UI (last 7 days by incurred date).
+- Moves the **expenses bar chart** to the **bottom** of the page.
+- Enhances chart styling to be more visually striking (glow/gradient background, improved hierarchy, and larger canvas).
 - Chart updates when adding an expense, updating status, or refreshing.
 - Adds a new API endpoint to support the chart: `GET /api/expenses/summary`.
 - Improves demo measurability via automated tests for the summary endpoint and its edge cases.
