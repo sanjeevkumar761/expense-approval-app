@@ -7,12 +7,15 @@ Full-stack expense approval app in one repo.
   - `GET /api/expenses` — list expenses
   - `POST /api/expenses` — create an expense (basic validation)
   - `POST /api/expenses/:id/status` — update status: `approve | reject | paid`
+  - `GET /api/expenses/summary?days=7` — chart-friendly totals by incurred date
   - In-memory seed with **3** expenses at startup
 - **Frontend served by Express** at `/` (HTML/CSS/JS)
   - Lists expenses
   - Form to create expenses
   - Approve/Reject/Paid buttons
-- **Tests**: one API test using **Jest + Supertest**
+  - **Expenses chart** (bar chart by incurred date for the last 7 days)
+- **Tests**: Jest + Supertest
+  - API test covering list/create/status update + summary edge cases
 
 ## Getting started
 
@@ -38,6 +41,18 @@ Response:
 ```json
 { "expenses": [ ... ] }
 ```
+
+### `GET /api/expenses/summary?days=7`
+Response:
+```json
+{
+  "days": 7,
+  "byDay": [ { "date": "YYYY-MM-DD", "total": 123.45 } ],
+  "grandTotal": 456.78
+}
+```
+- Invalid/zero `days` defaults to `7`.
+- Always returns exactly `days` buckets (0 totals included) for chart continuity.
 
 ### `POST /api/expenses`
 Body:
@@ -74,5 +89,7 @@ npm test
 ```
 
 ## User-visible changes
-- Provides an end-to-end expense approval UI and API in a single repo.
-- Adds seed data, status update flow, and error handling for invalid inputs.
+- Adds an **expenses bar chart** to the UI (last 7 days by incurred date).
+- Chart updates when adding an expense, updating status, or refreshing.
+- Adds a new API endpoint to support the chart: `GET /api/expenses/summary`.
+- Improves demo measurability via automated tests for the summary endpoint and its edge cases.
