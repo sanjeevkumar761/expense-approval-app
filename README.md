@@ -102,3 +102,4 @@ npm test
 - Adds a new API endpoint to support the chart: `GET /api/expenses/summary`.
 - Improves demo measurability via automated tests for the summary endpoint and its edge cases.
 - Adds **products UI navigation** on the main page (a “Browse products” link to the existing `/products` catalog pages). 
+- Improves the **Products catalog UI**: replaces raw table hyperlinks with styled product cards and enhances product detail presentation (including a graceful placeholder when a product has no image).
