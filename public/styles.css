@@ -148,6 +148,44 @@ button.secondary {
   color: #ffd0d8;
 }
 
+/* Chart (stunning) */
+.chart-card {
+  position: relative;
+  overflow: hidden;
+  padding: 18px;
+}
+
+.chart-card::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background:
+    radial-gradient(1200px 240px at 20% -30%, rgba(91, 140, 255, 0.35), transparent 60%),
+    radial-gradient(900px 220px at 90% 0%, rgba(45, 212, 191, 0.18), transparent 55%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+  pointer-events: none;
+  filter: saturate(1.1);
+}
+
+.chart-card::after {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 20px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle at 30% 30%, rgba(91, 140, 255, 0.28), transparent 62%);
+  transform: translateZ(0);
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.chart-card,
+.chart-card * {
+  position: relative;
+  z-index: 1;
+}
+
 .chart-header {
   display: flex;
   align-items: flex-start;
@@ -159,6 +197,12 @@ button.secondary {
 .chart-sub {
   color: var(--muted);
   font-size: 13px;
+}
+
+.chart-total {
+  color: #ffffff;
+  font-weight: 800;
+  letter-spacing: 0.2px;
 }
 
 .chart-legend {
@@ -174,25 +218,40 @@ button.secondary {
   width: 10px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(91, 140, 255, 0.9);
-  box-shadow: 0 0 0 4px rgba(91, 140, 255, 0.12);
+  background: rgba(91, 140, 255, 0.95);
+  box-shadow:
+    0 0 0 4px rgba(91, 140, 255, 0.12),
+    0 0 22px rgba(91, 140, 255, 0.35);
 }
 
 .chart-body {
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(231, 238, 252, 0.10);
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow:
+    0 0 0 1px rgba(91, 140, 255, 0.08),
+    0 18px 45px rgba(0, 0, 0, 0.35);
 }
 
 .chart-canvas {
   display: block;
   width: 100%;
-  height: 220px;
+  height: 260px;
+}
+
+/* gentle entrance */
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chart-card {
+  animation: popIn 420ms ease-out both;
 }
 
 @media (max-width: 720px) {
   .row { grid-template-columns: 1fr; }
-  .chart-canvas { height: 200px; }
+  .chart-canvas { height: 220px; }
   .chart-header { flex-direction: column; align-items: flex-start; }
 }
