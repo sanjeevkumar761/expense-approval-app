@@ -134,11 +134,27 @@ button.secondary {
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease, border-color 120ms ease, transform 120ms ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-btn.approve { border-color: rgba(45, 212, 191, 0.4); }
 .action-btn.reject { border-color: rgba(255, 91, 122, 0.4); }
 .action-btn.paid { border-color: rgba(91, 140, 255, 0.4); }
+
+.action-btn.secondary-link {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.action-btn.secondary-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(231, 238, 252, 0.18);
+  transform: translateY(-1px);
+}
 
 /* Approve button green themed */
 .action-btn.approve {
