@@ -14,6 +14,22 @@
       </header>
 
       <section class="card">
+        <div class="chart-header">
+          <div>
+            <h2 style="margin:0 0 4px">Expenses (last 7 days)</h2>
+            <div class="chart-sub">Total: <span id="chartTotal">—</span></div>
+          </div>
+          <div class="chart-legend" aria-label="Chart legend">
+            <span class="legend-dot"></span>
+            <span class="legend-label">Daily total</span>
+          </div>
+        </div>
+        <div class="chart-body">
+          <canvas id="expensesChart" class="chart-canvas" aria-label="Expenses chart" role="img"></canvas>
+        </div>
+      </section>
+
+      <section class="card">
         <h2>Add Expense</h2>
         <form id="createExpenseForm">
           <div class="row">

@@ -34,4 +34,25 @@ describe('Expense Approval API', () => {
     expect(approveRes.status).toBe(200);
     expect(approveRes.body.expense).toMatchObject({ id: expenseId, status: 'approve' });
   });
+
+  test('GET /api/expenses/summary returns totals-by-day and handles invalid days query', async () => {
+    expensesStore.seed();
+
+    const summaryResDefault = await request(app).get('/api/expenses/summary');
+    expect(summaryResDefault.status).toBe(200);
+    expect(summaryResDefault.body).toMatchObject({ days: 7 });
+    expect(Array.isArray(summaryResDefault.body.byDay)).toBe(true);
+    expect(summaryResDefault.body.byDay).toHaveLength(7);
+    expect(typeof summaryResDefault.body.grandTotal).toBe('number');
+
+    const summaryResInvalidDays = await request(app).get('/api/expenses/summary?days=not-a-number');
+    expect(summaryResInvalidDays.status).toBe(200);
+    expect(summaryResInvalidDays.body.days).toBe(7);
+    expect(summaryResInvalidDays.body.byDay).toHaveLength(7);
+
+    const summaryResZeroDays = await request(app).get('/api/expenses/summary?days=0');
+    expect(summaryResZeroDays.status).toBe(200);
+    expect(summaryResZeroDays.body.days).toBe(7);
+    expect(summaryResZeroDays.body.byDay).toHaveLength(7);
+  });
 });
