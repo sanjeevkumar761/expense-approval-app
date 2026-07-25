@@ -89,6 +89,7 @@ npm test
 ```
 
 ## User-visible changes
+- **Changes the “Approve” button to a green themed style** (green background/border and hover) to improve visual clarity of the primary approval action.
 - Moves the **expenses bar chart** to the **bottom** of the page.
 - Enhances chart styling to be more visually striking (glow/gradient background, improved hierarchy, and larger canvas).
 - Chart updates when adding an expense, updating status, or refreshing.
