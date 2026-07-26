@@ -23,6 +23,11 @@ describe('Product trends page', () => {
     // New UX: trends cards include a visible badge overlay.
     expect(res.text).toContain('class="product-card-badge"');
     expect(res.text).toContain('Top pick');
+
+    // New modern hero + stats
+    expect(res.text).toContain('class="trends-hero"');
+    expect(res.text).toContain('Trending picks');
+    expect(res.text).toContain('Trend stats');
   });
 
   test('GET /products/trends handles empty catalog with a clear empty state', async () => {
@@ -34,5 +39,7 @@ describe('Product trends page', () => {
 
     expect(res.text).toContain('Latest Product Trends');
     expect(res.text).toContain('No trends to show yet');
+    expect(res.text).toContain('role="status"');
+    expect(res.text).toContain('Browse products');
   });
 });
