@@ -25,46 +25,43 @@ function formatMoney(amount, currency) {
   }
 }
 
+// --- NEW NAV DESIGN ---
 function pageShell({ title, activeNav, bodyHtml }) {
-  // Keep classnames aligned with existing tests/styles
-  // so tests looking for specific classes continue to pass.
-  const navProducts =
-    activeNav === 'products'
-      ? ` <a class="action-btn secondary-link" href="/products" aria-current="page">Products</a>`
-      : ` <a class="action-btn secondary-link" href="/products">Products</a>`;
-
-  const navTrends =
-    activeNav === 'trends'
-      ? ` <a class="action-btn secondary-link" href="/products/trends" aria-current="page">Trends</a>`
-      : ` <a class="action-btn secondary-link" href="/products/trends">Trends</a>`;
-
+  // Sticky dark nav, accent underline for active, hover effects. Tailwind classes in html. 
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${escapeHtml(title)}</title>
+    <script src='https://cdn.tailwindcss.com'></script>
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
-    <div class="container">
-      <header>
-        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap;">
-          <div>
-            <h1 style="margin:0 0 8px;">${escapeHtml(title)}</h1>
-            <p class="muted" style="margin:0; max-width:56ch;">Browse products and open product details.</p>
-          </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            ${navProducts}
-            ${navTrends}
-            <a class="action-btn secondary-link" href="/" aria-label="Back to expense approval">Back to app</a>
-          </div>
+  <body class="bg-[#0b1220] text-zinc-100 min-h-screen">
+    <div class="w-full border-b border-slate-800 bg-[#10182a] sticky top-0 z-30 shadow-sm">
+      <nav class="max-w-6xl mx-auto flex flex-row items-center justify-between px-6 py-3">
+        <div class="flex items-center gap-3">
+          <span class="font-extrabold text-2xl text-indigo-400">Product Trends</span>
         </div>
+        <div class="flex items-center gap-2 md:gap-4 text-sm font-semibold">
+          <a href="/products" class="px-4 py-2 rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10182a] ${activeNav === 'products' ? 'bg-indigo-600 text-white underline underline-offset-4' : 'text-zinc-200 hover:text-white hover:bg-slate-800 underline-offset-4 hover:underline'}">Products</a>
+          <a href="/products/trends" class="px-4 py-2 rounded-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10182a] ${activeNav === 'trends' ? 'bg-indigo-600 text-white underline underline-offset-4' : 'text-zinc-200 hover:text-white hover:bg-slate-800 underline-offset-4 hover:underline'}">Trends</a>
+          <a href="/" class="px-3 py-1.5 rounded-lg transition text-indigo-300 hover:text-white hover:bg-indigo-700 border border-transparent hover:border-indigo-400 ml-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#10182a]" aria-label="Back to expense approval">
+            <svg xmlns="http://www.w3.org/2000/svg" class="inline w-4 h-4 mr-1 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+            Back to app
+          </a>
+        </div>
+      </nav>
+    </div>
+    <div class="min-h-[calc(100vh-64px)]">
+      <header class="max-w-6xl mx-auto px-6 py-10">
+        <h1 class="text-3xl font-semibold mb-2">${escapeHtml(title)}</h1>
+        <p class="text-slate-400 max-w-2xl text-base">Browse products and open product details.</p>
       </header>
-
-      ${bodyHtml}
-
-      <footer class="muted" style="margin-top:16px;">&copy; Product catalog demo</footer>
+      <main class="max-w-6xl mx-auto px-6 pb-12">
+        ${bodyHtml}
+      </main>
+      <footer class="text-slate-500 px-6 max-w-6xl mx-auto text-xs pb-8">&copy; Product catalog demo</footer>
     </div>
   </body>
 </html>`;
