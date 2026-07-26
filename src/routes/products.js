@@ -91,7 +91,7 @@ function productCardHtml(p, { badgeLabel } = {}) {
           ${imageUrl
             ? `<img class="product-card-img" src="${escapeHtml(imageUrl)}" alt="${escapeHtml(
                 p.name
-              )} product image" loading="lazy" />`
+              )} product image" loading="lazy" onerror="this.onerror=null;this.src='https://picsum.photos/seed/product-image-fallback/1200/800';" />`
             : `<div class="product-card-img product-card-img--placeholder" aria-hidden="true"></div>`}
         </div>
         <div class="product-card-body">
@@ -123,7 +123,6 @@ router.get('/', (req, res) => {
             <h2 style="margin:0; font-size:18px;">Available products</h2>
             <p class="muted" style="margin:6px 0 0; font-size:13px;">Click a product card to view details.</p>
           </div>
-        </div>
 
         ${products.length === 0
           ? `
@@ -160,6 +159,14 @@ router.get('/trends', (req, res) => {
 
   const top = byPriceDesc.slice(0, 6);
 
+  const topPrice =
+    top.length > 0 && Number.isFinite(Number(top[0]?.price)) ? Number(top[0].price) : 0;
+  const avgTopPrice = top.length
+    ? top
+        .map((p) => (Number.isFinite(Number(p?.price)) ? Number(p.price) : 0))
+        .reduce((a, b) => a + b, 0) / top.length
+    : 0;
+
   const cardsHtml = top
     .map((p, idx) => {
       const tag = idx === 0 ? 'Top pick' : idx === 1 ? 'Rising now' : 'Hot right now';
@@ -171,24 +178,53 @@ router.get('/trends', (req, res) => {
     title: 'Latest Product Trends',
     activeNav: 'trends',
     bodyHtml: `
-      <section class="card" aria-label="Latest product trends">
-        <div class="list-header" style="margin-bottom:8px;">
-          <div>
-            <h2 style="margin:0; font-size:18px;">Latest Product Trends</h2>
-            <p class="muted" style="margin:6px 0 0; font-size:13px;">A curated snapshot of what’s trending in this demo catalog.</p>
+      <section class="trends-hero" aria-label="Latest product trends">
+        <div class="trends-hero-top">
+          <div class="max-w-3xl">
+            <div class="pill" aria-label="Trending feed">📈 Live demo feed</div>
+            <h2 class="trends-title">Latest Product Trends</h2>
+            <p class="trends-sub muted">A curated snapshot of what’s trending in this demo catalog—ranked by price for deterministic results.</p>
+          </div>
+
+          <div class="trends-hero-stats" aria-label="Trend stats">
+            <div class="stat-card">
+              <div class="stat-label muted">Top price</div>
+              <div class="stat-value">${escapeHtml(formatMoney(topPrice, 'USD'))}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label muted">Avg (top ${top.length})</div>
+              <div class="stat-value">${escapeHtml(formatMoney(avgTopPrice, 'USD'))}</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label muted">Products</div>
+              <div class="stat-value">${escapeHtml(String(top.length))}</div>
+            </div>
           </div>
         </div>
 
         ${products.length === 0
           ? `
-            <div style="padding:14px 2px;">
-              <p style="margin:0; color: var(--muted);">No trends to show yet.</p>
-              <p style="margin:10px 0 0; color: var(--muted); font-size:13px;">Add products in the seed data to populate trends.</p>
+            <div class="trends-empty" role="status" aria-live="polite">
+              <div class="empty-icon" aria-hidden="true">✨</div>
+              <div>
+                <h3 style="margin:0 0 6px; font-size:16px;">No trends to show yet</h3>
+                <p class="muted" style="margin:0; font-size:13px; line-height:1.5;">Add products in the seed data to populate trends.</p>
+              </div>
+              <div style="margin-left:auto;">
+                <a class="action-btn secondary-link" href="/products">Browse products</a>
+              </div>
             </div>
           `
           : `
-            <div class="product-grid" role="list" aria-label="Trending products">
-              ${cardsHtml}
+            <div>
+              <div class="list-header" style="margin:0 0 4px;">
+                <div>
+                  <h3 class="trends-section-title" style="margin:0; font-size:15px;">Trending picks</h3>
+                  <p class="muted" style="margin:6px 0 0; font-size:13px;">Tip: cards include a “Top pick / Rising now / Hot right now” badge overlay for quick scanning.</p>
+                </div>
+              </div>
+
+              <div class="product-grid" role="list" aria-label="Trending products">${cardsHtml}</div>
             </div>
           `}
       </section>
@@ -239,6 +275,7 @@ router.get('/:id', (req, res) => {
                     alt="${escapeHtml(product.name)} product image"
                     class="product-detail-img"
                     loading="lazy"
+                    onerror="this.onerror=null;this.src='https://picsum.photos/seed/product-image-fallback/1200/800';"
                   />`
                 : `<div class="product-detail-img product-detail-img--placeholder" aria-hidden="true"></div>`}
               <div style="display:flex; gap:10px; flex-wrap:wrap;">
